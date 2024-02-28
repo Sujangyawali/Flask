@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+   <body>
+      <table border = 1>
+         {% for key, value in result.items() %} #for loop : falls unser the statement syntax
+            <tr>
+               <th> {{ key }} </th> #falls under the variable syntax
+               <td> {{ value }} </td>
+            </tr>
+         {% endfor %}
+      </table>
+   </body>
+</html>
