@@ -136,14 +136,6 @@ def delete_post(post_id):
     flash('Your post has been deleted !','success')
     return redirect(url_for('home'))
 
-@app.route("/user/<string:username>")
-def user_posts(username):
-    page=request.args.get('page', 1, type = int)
-    user = User.query.filter_by(username=username).first_or_404()
-    posts=Post.query.filter_by(author=user)\
-        .order_by(Post.date_posted.desc())\
-        .paginate(page=page, per_page=3)
-    return render_template('user_posts.html',posts=posts, user=user)
 
 def send_reset_email(user):
     token = user.get_reset_token()
@@ -154,7 +146,8 @@ def send_reset_email(user):
 {url_for('reset_token',token=token, _external=True)}
 If you did not make this request then simply ignore this email and no change will be made
 '''
-
+    mail.send(msg)
+    
 @app.route( "/reset_password",methods=['GET', 'POST'])
 def reset_request():
     if current_user.is_authenticated:
@@ -176,5 +169,11 @@ def reset_token(token):
         flash('That is an invalid or expired token','warning')
         return redirect(url_for('reset_request'))
     form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash(f'Your password has been updated! Your are now able to log in', 'success')
+        return redirect(url_for('login'))
     return render_template('reset_token.html', title = 'Reset Password', form=form)
     
