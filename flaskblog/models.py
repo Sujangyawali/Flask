@@ -1,6 +1,6 @@
 from flaskblog import db, login_manager, app
 from datetime import datetime
-from itsdangerous import URLSafeTimedSerializer as Serializer
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_login import UserMixin #possible implementation for login is_authenticated,is_active,is_anonymous,get_id()
 
 @login_manager.user_loader
@@ -17,7 +17,7 @@ class User(db.Model, UserMixin):
     posts=db.relationship('Post',backref='author',lazy=True) # lazy=True means that 
 
     #generating token to reset pw with email
-    def get_rest_token(self, expires_sec = 1800):
+    def get_reset_token(self, expires_sec = 1800):
         s = Serializer(app.config['SECRET_KEY'], expires_sec)
         return s.dumps({'user_id': self.id}).decode('utf-8') #serialise payload(dictionary) of user having information user id
 

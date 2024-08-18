@@ -136,6 +136,14 @@ def delete_post(post_id):
     flash('Your post has been deleted !','success')
     return redirect(url_for('home'))
 
+@app.route("/user/<string:username>")
+def user_posts(username):
+    page = request.args.get('page', 1, type=int)
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).paginate(page=page,per_page=5)
+    return render_template('user_posts.html', posts=posts, user=user)
+
+
 
 def send_reset_email(user):
     token = user.get_reset_token()
@@ -146,6 +154,7 @@ def send_reset_email(user):
 {url_for('reset_token',token=token, _external=True)}
 If you did not make this request then simply ignore this email and no change will be made
 '''
+    print(msg)
     mail.send(msg)
     
 @app.route( "/reset_password",methods=['GET', 'POST'])
